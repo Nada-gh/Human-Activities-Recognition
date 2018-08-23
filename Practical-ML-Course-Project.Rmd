@@ -1,0 +1,145 @@
+---
+title: "Practical ML Course Project"
+author: "Nada Gh"
+date: "August 23, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+The goal of this project is to predict the quality of Humans Activities;what is known as Human Activity Reognition (HAR). In particular, this work focuses on the way in which those activities are carried(quality) by studying the manner in which they did the exercies. 
+
+## Loading the required libraries
+
+```{r, echo=TRUE}
+library(caret)
+library(Hmisc)
+library(dplyr)
+
+```
+
+
+## Reading and Exploring Data
+
+I first read the given training and testing datasets, and get rid of all the dirty entries by setting them to NA.
+
+```{r echo=TRUE}
+trndta<-read.csv("pml-training.csv",na.strings = c(NA," ","#DIV/0!"))
+tstdta<-read.csv("tsting.csv",na.strings = c(NA," ","#DIV/0!"))
+```
+
+Before I go deeply through the main analysis for the prediction process, I need to understand the distribution of our data through some statistical techniques.
+
+```{r echo=TRUE, results='asis'}
+
+attach(trndta)
+
+cbind(freq=table(classe), percentage=prop.table(table(classe))*100)
+
+ dim(trndta)
+
+str(trndta)
+
+summary(trndta)
+
+```
+
+## Data Cleaning
+
+In this part, some features are entierly deleted. By checking the frequency of the Na values, it seems that some features have more than 50% of the observations as NAs. 
+
+```{r echo=TRUE}
+
+L<-sapply(trndta, function(x) sum(is.na(x)))
+
+vec<-which(L>=9608)
+
+clnTrnDta<-trndta[,-vec]
+
+clnTst<-tstdta[,-vec]
+
+```
+
+ choose only a particular set of features; Remove features with almost Zero-variation, or not very important in the problem context.
+
+```{r echo=TRUE}
+
+NZV<-nearZeroVar(clnTrnDta)
+clnTrnDta<-clnTrnDta[,-NZV]
+clnTst<-clnTst[,-NZV]
+
+clnTrnDta<-clnTrnDta[,-c(1:5)]
+clnTst<-clnTst[,-c(1:5)]
+
+```
+
+Understand the correlation between variables in order to check if we can exclude some redundant variables.
+
+```{r echo=TRUE}
+
+M<-abs(cor(clnTrnDta[,-54]))
+diag(M)<-0
+which(M>0.8,arr.ind = TRUE)
+
+```
+
+## Data Slicing
+
+```{r echo=TRUE}
+
+InTrain<-createDataPartition(y=clnTrnDta$classe,p=0.75,list = FALSE)
+training<-clnTrnDta[InTrain,]
+testing<-clnTrnDta[-InTrain,]
+
+```
+
+## Data Exploration with Visualization
+
+Since we have a large number of features, I tried to manually select some features (total accelartion) and explore their distribution with repect to the "classe" variable. 
+
+```{r Features visualization, echo=TRUE}
+Tot<- which(grepl("^total",names(training),ignore.case = F))
+TotalAccel<-training[,Tot]
+featurePlot(x=TotalAccel,y= training$classe,plot ="ellipse", main="Feature Exploration" )
+```
+
+
+## Model Fitting
+
+In order to test the robustness of the model that it can be generalized for new "unseen" data (i.e. so we can avoid overfitting), we applied K-fold as a cross validation technique with K=5. For the prediction process, I chose Randome Forest since it performs well in terms of its accuracy. 
+
+```{r echo=TRUE, cache=TRUE}
+
+trainControl <- trainControl(method="cv", number=5)
+
+FitMdl<-train(classe~., data=training, method="rf", trainControl=trainControl)
+
+Preds<-predict(FitMdl,testing[,-54])
+
+confusionMatrix(Preds,testing$classe)
+
+
+```
+
+## Model Accuracy Calculation
+
+In this section, I am comparing the In. and Out of Sample Error Values. As we know, in-sample error reflects the model accuracy on the training data which is usually small, or at lease much more slower than the out of sample error. We need a model that can be good enough to be generalized on new data so reduce overfitting 
+
+```{r, echo=TRUE, results='asis'}
+
+ OutOfSmapleError<-sum(Preds!=testing$classe)/length(Preds)
+
+ PredsTrn<-predict(FitMdl,training[,-54])
+ 
+  InSampleError<-sum(PredsTrn!=training$classe)/length(PredsTrn)
+  
+```
+
+
+
+
+
