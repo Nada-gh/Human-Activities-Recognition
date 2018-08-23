@@ -29,7 +29,7 @@ I first read the given training and testing datasets, and get rid of all the dir
 
 ```{r echo=TRUE}
 trndta<-read.csv("pml-training.csv",na.strings = c(NA," ","#DIV/0!"))
-tstdta<-read.csv("tsting.csv",na.strings = c(NA," ","#DIV/0!"))
+tstdta<-read.csv("pml-testing.csv",na.strings = c(NA," ","#DIV/0!"))
 ```
 
 Before I go deeply through the main analysis for the prediction process, I need to understand the distribution of our data through some statistical techniques.
@@ -42,13 +42,13 @@ cbind(freq=table(classe), percentage=prop.table(table(classe))*100)
 
  dim(trndta)
 
-str(trndta)
+#str(trndta)
 
-summary(trndta)
+#summary(trndta)
 
 ```
 
-## Data Cleaning
+## Data Cleaning and Feature Selection
 
 In this part, some features are entierly deleted. By checking the frequency of the Na values, it seems that some features have more than 50% of the observations as NAs. 
 
@@ -81,10 +81,10 @@ Understand the correlation between variables in order to check if we can exclude
 
 ```{r echo=TRUE}
 
-M<-abs(cor(clnTrnDta[,-54]))
-diag(M)<-0
-which(M>0.8,arr.ind = TRUE)
-
+CorrelationMatrix<-cor(clnTrnDta[,-54])
+print(CorrelationMatrix)
+highlyCorrelated<-findCorrelation(CorrelationMatrix,cutoff = 0.5)
+print(highlyCorrelated)
 ```
 
 ## Data Slicing
@@ -114,6 +114,8 @@ In order to test the robustness of the model that it can be generalized for new 
 
 ```{r echo=TRUE, cache=TRUE}
 
+set.seed(7)
+
 trainControl <- trainControl(method="cv", number=5)
 
 FitMdl<-train(classe~., data=training, method="rf", trainControl=trainControl)
@@ -122,10 +124,19 @@ Preds<-predict(FitMdl,testing[,-54])
 
 confusionMatrix(Preds,testing$classe)
 
+# estimate variable importance
+importance <- varImp(FitMdl, scale=FALSE)
+
+# summarize importance
+print(importance)
+
+# plot importance
+plot(importance)
+
 
 ```
 
-## Model Accuracy Calculation
+## Model Validation
 
 In this section, I am comparing the In. and Out of Sample Error Values. As we know, in-sample error reflects the model accuracy on the training data which is usually small, or at lease much more slower than the out of sample error. We need a model that can be good enough to be generalized on new data so reduce overfitting 
 
