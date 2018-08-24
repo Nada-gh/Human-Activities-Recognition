@@ -2,7 +2,7 @@
 title: "Practical ML Course Project"
 author: "Nada Gh"
 date: "August 23, 2018"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
