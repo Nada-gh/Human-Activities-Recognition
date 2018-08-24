@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-The goal of this project is to predict the quality of Humans Activities;what is known as Human Activity Reognition (HAR). In particular, this work focuses on the way in which those activities are carried(quality) by studying the manner in which they did the exercies. 
+The goal of this project is to predict the Quality of Humans' Activities; what is known as Human Activity Recognition (HAR). In particular, this work focuses on the way in which those activities are carried (quality) by studying the manner in which they did the exercies. 
 
 ## Loading the required libraries
 
@@ -110,7 +110,7 @@ corrplot(CorrelationMatrix)
 
 ## Model Fitting
 
-In order to test the robustness of the model that it can be generalized for new "unseen" data (i.e. so we can avoid overfitting), we applied K-fold as a cross validation technique with K=5. For the prediction process, I chose Randome Forest since it performs well in terms of its accuracy. 
+In order to test the robustness of the model that it can be generalized for new "unseen" future data (i.e. so we can avoid overfitting), we applied K-fold as a cross validation technique with K=5. For the prediction process, I chose Randome Forest since it performs well in terms of its accuracy. 
 
 ```{r echo=TRUE, cache=TRUE}
 
