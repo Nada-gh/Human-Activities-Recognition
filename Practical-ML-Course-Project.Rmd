@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-The goal of this project is to predict the quality of Humans Activities;what is known as Human Activity Reognition (HAR). In particular, this work focuses on the way in which those activities are carried(quality) by studying the manner in which they did the exercies. 
+The goal of this project is to predict the Quality of Humans' Activities; what is known as Human Activity Recognition (HAR). In particular, this work focuses on the way in which those activities are carried (quality) by studying the manner in which they did the exercies. 
 
 ## Loading the required libraries
 
@@ -70,10 +70,13 @@ clnTst<-tstdta[,-vec]
 ```{r echo=TRUE}
 
 NZV<-nearZeroVar(clnTrnDta)
+
 clnTrnDta<-clnTrnDta[,-NZV]
+
 clnTst<-clnTst[,-NZV]
 
 clnTrnDta<-clnTrnDta[,-c(1:5)]
+
 clnTst<-clnTst[,-c(1:5)]
 
 ```
@@ -83,7 +86,9 @@ clnTst<-clnTst[,-c(1:5)]
 ```{r echo=TRUE}
 
 InTrain<-createDataPartition(y=clnTrnDta$classe,p=0.75,list = FALSE)
+
 training<-clnTrnDta[InTrain,]
+
 testing<-clnTrnDta[-InTrain,]
 
 ```
@@ -93,8 +98,11 @@ testing<-clnTrnDta[-InTrain,]
 Since we have a large number of features, I tried to manually select some features (total accelartion) and explore their distribution with repect to the "classe" variable. 
 
 ```{r Features visualization, echo=TRUE}
+
 Tot<- which(grepl("^total",names(training),ignore.case = F))
+
 TotalAccel<-training[,Tot]
+
 featurePlot(x=TotalAccel,y= training$classe,plot ="ellipse", main="Feature Exploration" )
 ```
 
@@ -103,14 +111,17 @@ Understand the correlation between variables in order to check if we can exclude
 ```{r echo=TRUE}
 
 CorrelationMatrix<-cor(TotalAccel)
+
 print(CorrelationMatrix)
+
 highlyCorrelated<-findCorrelation(CorrelationMatrix,cutoff = 0.5)
+
 corrplot(CorrelationMatrix)
 ```
 
 ## Model Fitting
 
-In order to test the robustness of the model that it can be generalized for new "unseen" data (i.e. so we can avoid overfitting), we applied K-fold as a cross validation technique with K=5. For the prediction process, I chose Randome Forest since it performs well in terms of its accuracy. 
+In order to test the robustness of the model that it can be generalized for new "unseen" future data (i.e. so we can avoid overfitting), we applied K-fold as a cross validation technique with K=5. For the prediction process, I chose Randome Forest since it performs well in terms of its accuracy. 
 
 ```{r echo=TRUE, cache=TRUE}
 
