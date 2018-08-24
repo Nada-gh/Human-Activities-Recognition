@@ -103,7 +103,7 @@ Tot<- which(grepl("^total",names(training),ignore.case = F))
 
 TotalAccel<-training[,Tot]
 
-featurePlot(x=TotalAccel,y= training$classe,plot ="ellipse", main="Feature Exploration" )
+featurePlot(x=TotalAccel,y= training$classe,plot ="ellipse", main ="Feature Exploration" )
 ```
 
 Understand the correlation between variables in order to check if we can exclude some redundant variables.
@@ -121,7 +121,7 @@ corrplot(CorrelationMatrix)
 
 ## Model Fitting
 
-In order to test the robustness of the model that it can be generalized for new "unseen" future data (i.e. so we can avoid overfitting), we applied K-fold as a cross validation technique with K=5. For the prediction process, I chose Randome Forest since it performs well in terms of its accuracy. 
+In order to test the robustness of the model that it can be generalized for new "unseen" future data (i.e. so we can avoid overfitting), we applied K-fold as a cross-validation technique with K=5. For the prediction process, I chose Randome Forest since it performs well in terms of its accuracy. 
 
 ```{r echo=TRUE, cache=TRUE}
 
