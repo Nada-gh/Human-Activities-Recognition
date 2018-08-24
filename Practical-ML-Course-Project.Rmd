@@ -19,6 +19,7 @@ The goal of this project is to predict the quality of Humans Activities;what is 
 library(caret)
 library(Hmisc)
 library(dplyr)
+library(corrplot)
 
 ```
 
@@ -77,16 +78,6 @@ clnTst<-clnTst[,-c(1:5)]
 
 ```
 
-Understand the correlation between variables in order to check if we can exclude some redundant variables.
-
-```{r echo=TRUE}
-
-CorrelationMatrix<-cor(clnTrnDta[,-54])
-print(CorrelationMatrix)
-highlyCorrelated<-findCorrelation(CorrelationMatrix,cutoff = 0.5)
-print(highlyCorrelated)
-```
-
 ## Data Slicing
 
 ```{r echo=TRUE}
@@ -107,6 +98,15 @@ TotalAccel<-training[,Tot]
 featurePlot(x=TotalAccel,y= training$classe,plot ="ellipse", main="Feature Exploration" )
 ```
 
+Understand the correlation between variables in order to check if we can exclude some redundant variables.
+
+```{r echo=TRUE}
+
+CorrelationMatrix<-cor(TotalAccel)
+print(CorrelationMatrix)
+highlyCorrelated<-findCorrelation(CorrelationMatrix,cutoff = 0.5)
+corrplot(CorrelationMatrix)
+```
 
 ## Model Fitting
 
